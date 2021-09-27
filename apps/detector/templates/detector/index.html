@@ -1,0 +1,59 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}
+    MNIST
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'detector/css/index.css' %}">
+{% endblock %}
+
+{% block main_content %}
+    <div class="container my-5">
+        <div class="p-5">
+            <div id="app" @mouseup="bodyMouseUp" @mouseout="bodyMouseOut">
+                <div class="card elevation">
+                    <div class="row text-center mt-3">
+                        <div class="col-md-12">
+                            <canvas class="canvas elevation" id="canvas" @mousedown="canvasMouseDown"
+                                    @mousemove="canvasMouseMove" height="560" width="560"></canvas>
+                            <form method="POST" id="sendImageForm" v-on:Submit="getMnistPredictions" data-url="{% url 'detector:get_mnist_predictions' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="canvasImage" id="hiddenInput">
+                                <div>
+                                    <button type="button" class="btn btn-warning" id="clear-button" v-on:Click="clearClickHandler">
+                                        Clear
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" id="identify">
+                                        Get Predictions
+                                    </button>
+                                </div>
+
+                            </form>
+
+                        </div>
+                    </div>
+                    <div class="predictions my-3">
+                        <div v-for="prediction of data.predictions"
+                             v-bind:class="prediction.value == getMaxPrediction ? 'prediction-col top-prediction' : 'prediction-col'"
+                             v-bind:id=[['prediction-'+prediction.index.toString()]]>
+                            <div class="prediction-bar-container">
+                                <div class="prediction-bar" v-bind:style="{height: prediction.value*100 + '%'}"></div>
+                            </div>
+                            <div class="prediction-number"><strong>[[prediction.index]]</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
+    <script src="{% static 'detector/js/mnist_chart.js' %}"></script>
+
+{% endblock %}
